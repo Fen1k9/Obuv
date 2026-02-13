@@ -1,0 +1,106 @@
+
+         {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #FFFFFF;
+            border: 2px solid #7FFF00;
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 0 20px rgba(127, 255, 0, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #000000;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .error {
+            background-color: #FFE4E1;
+            color: #FF0000;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 4px solid #FF0000;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input {
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Times New Roman', Times, serif;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: #7FFF00;
+            outline: none;
+            box-shadow: 0 0 5px rgba(127, 255, 0, 0.5);
+        }
+
+        button {
+            background-color: #00FA9A;
+            color: #000000;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        button:hover {
+            background-color: #7FFF00;
+            transform: scale(1.02);
+        }
+
+        .guest-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #006400;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .guest-link:hover {
+            color: #00FA9A;
+            text-decoration: underline;
+        }

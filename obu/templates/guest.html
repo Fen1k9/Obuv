@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Гость | Obuv</title>
+    <link rel="stylesheet" href="{% static 'sty.css' %}">
+    <link rel="icon" href="{% static 'images/icon.png' %}" type="image/png">
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="{% static 'images/icon.png' %}" alt="Логотип" class="header-logo">
+            <h1 style="margin: 0; font-size: 24px;">Магазин товаров</h1>
+        </div>
+        <div class="header-right">
+            <span>Страница гостя</span>
+            <a href="{% url 'logout' %}">Выйти</a>
+        </div>
+    </header>
+
+    <h1>Каталог товаров</h1>
+
+    {% for prod in products %}
+    <div class="product-card {% if prod.discount_percent > 15 %}high-discount{% endif %}">
+        <div class="product-image">
+            {% if prod.photo %}
+                <img src="{% static 'images/' %}{{ prod.photo }}" alt="{{ prod.product_name }}">
+            {% else %}
+                <div class="no-image">
+                    <img src="{% static 'images/picture.png' %}" width="150" height="150">
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="product-info">
+            <div><b>Категория:</b> {{ prod.category.category_name }}</div>
+            <div><b>Название:</b> {{ prod.product_name }}</div>
+            <div>
+                <b>Цена:</b>
+                {% if prod.discount_percent > 0 %}
+                    <span class="price-old">{{ prod.price|floatformat:2 }} руб.</span>
+                    <span class="price-new">{{ prod.discounted_price|floatformat:2 }} руб.</span>
+                {% else %}
+                    <span class="price-new">{{ prod.price|floatformat:2 }} руб.</span>
+                {% endif %}
+            </div>
+            <div>
+                <b>На складе:</b>
+                <span class="{% if prod.stock_quantity == 0 %}out-of-stock{% endif %}">
+                    {{ prod.stock_quantity }} шт.
+                </span>
+            </div>
+        </div>
+
+        {% if prod.discount_percent > 0 %}
+        <div class="discount-badge">
+            -{{ prod.discount_percent }}%
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 50px; background-color: #f0f0f0; border-radius: 15px;">
+        <h3>Товары не найдены</h3>
+    </div>
+    {% endfor %}
+</body>
+</html>

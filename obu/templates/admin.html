@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Админ</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>Страница АДМИНА</h1>
+    <p>Добро пожаловать, {{ request.session.user_full_name }}!</p>
+    <p>Ваша роль: {{ request.session.user_role }}</p>
+    <a href="{% url 'logout' %}">Выйти</a>
+</body>
+</html>
