@@ -3,10 +3,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Гость | Obuv</title>
+    <title>Гость - Obuv</title>
     <link rel="stylesheet" href="{% static 'sty.css' %}">
     <link rel="icon" href="{% static 'images/icon.png' %}" type="image/png">
-    </style>
 </head>
 <body>
     <header>
@@ -20,7 +19,15 @@
         </div>
     </header>
 
-    <h1>Каталог товаров</h1>
+    <div class="hint-box">
+        <div class="hint-icon"></div>
+        <div class="hint-content">
+            <div class="hint-text-small">
+                Для оформления заказа необходимо
+                <a href="{% url 'login' %}">войти в систему</a>.
+            </div>
+        </div>
+    </div>
 
     {% for prod in products %}
     <div class="product-card {% if prod.discount_percent > 15 %}high-discount{% endif %}">
@@ -46,14 +53,15 @@
                     <span class="price-new">{{ prod.price|floatformat:2 }} руб.</span>
                 {% endif %}
             </div>
-            <div>
-                <b>На складе:</b>
-                <span class="{% if prod.stock_quantity == 0 %}out-of-stock{% endif %}">
-                    {{ prod.stock_quantity }} шт.
-                </span>
-            </div>
+                <div>
+                    <b>На складе:</b>
+                    {% if prod.stock_quantity == 0 %}
+                        <span class="out-of-stock">Нет в наличии ️</span>
+                    {% else %}
+                        <span>{{ prod.stock_quantity }} шт.</span>
+                    {% endif %}
+                </div>
         </div>
-
         {% if prod.discount_percent > 0 %}
         <div class="discount-badge">
             -{{ prod.discount_percent }}%

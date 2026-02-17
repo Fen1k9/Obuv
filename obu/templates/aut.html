@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Вход в систему| Obuv</title>
+    <title>Вход в систему -  Obuv</title>
     <link rel="stylesheet" href="{% static 'aut.css' %}">
     <link rel="icon" href="{% static 'images/icon.png' %}" type="image/png">
 
@@ -15,14 +15,42 @@
             <h2>Вход в систему</h2>
         </div>
 
-        {% if error %}
-            <div class="error">{{ error }}</div>
+        {% if error == 'Неверный пароль' %}
+        <div class="error-message">
+            <span class="error-icon">❌</span>
+            <div>
+                <div class="error-text">Ошибка авторизации</div>
+                <div class="error-description">
+                    Неверный пароль. Проверьте раскладку клавиатуры и CapsLock.<br>
+                    <small>Если забыли пароль, обратитесь к администратору</small>
+                </div>
+            </div>
+        </div>
         {% endif %}
 
         <form method="post">
             {% csrf_token %}
-            <input type="text" name="username" placeholder="Ваш логин" required>
-            <input type="password" name="password" placeholder="Ваш пароль" required>
+                <div class="form-group">
+                    <label>Логин (email)</label>
+                    <input type="text" name="username"
+                           placeholder="например: nik@bk.ru" required>
+                    <div class="hint-text">📧 Формат: имя@домен.ру</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" name="password"
+                           placeholder="Введите ваш пароль" required>
+                    <div class="hint-text">🔒 Пароль чувствителен к регистру</div>
+
+                    <div class="requirements">
+                        <h4>Требования к паролю:</h4>
+                        <ul>
+                            <li>Минимум 6 символов</li>
+                            <li>Может содержать буквы, цифры</li>
+                        </ul>
+                    </div>
+                </div>
             <button type="submit">Войти</button>
         </form>
 

@@ -31,13 +31,32 @@ def login_user(request):
     return render(request, 'aut.html')
 
 def admin_page(request):
-    return render(request, 'admin.html')
+    products = Product.objects.all().order_by('id')
+    for prod in products:
+        if prod.discount_percent > 0:
+            prod.discounted_price = prod.price * (1 - prod.discount_percent / 100)
+        else:
+            prod.discounted_price = prod.price
+    return render(request, 'admin.html', {'products': products})
 
 def manager_page(request):
-    return render(request, 'manager.html')
+    products = Product.objects.all().order_by('id')
+    for prod in products:
+        if prod.discount_percent > 0:
+            prod.discounted_price = prod.price * (1 - prod.discount_percent / 100)
+        else:
+            prod.discounted_price = prod.price
+    return render(request, 'manager.html', {'products': products})
 
 def client_page(request):
-    return render(request, 'client.html')
+    products = Product.objects.all().order_by('id')
+    for prod in products:
+        if prod.discount_percent > 0:
+            prod.discounted_price = prod.price * (1 - prod.discount_percent / 100)
+        else:
+            prod.discounted_price = prod.price
+    return render(request, 'client.html', {'products': products})
+
 
 def guest_page(request):
     products = Product.objects.all().order_by('id')

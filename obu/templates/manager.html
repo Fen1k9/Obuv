@@ -4,13 +4,85 @@
 <head>
     <meta charset="UTF-8">
     <title>Менеджер</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'sty.css' %}">
 </head>
 <body>
-    <h1>Страница МЕНЕДЖЕРА</h1>
-    <p>Добро пожаловать, {{ request.session.user_full_name }}!</p>
-    <p>Ваша роль: {{ request.session.user_role }}</p>
-    <a href="{% url 'logout' %}">Выйти</a>
+    <header>
+        <div class="header-left">
+            <img src="{% static 'images/icon.png' %}" alt="Логотип" class="header-logo">
+            <h1>Магазин обуви</h1>
+        </div>
+        <div class="header-right">
+            <span>{{ request.session.user_full_name }} (Менеджер)</span>
+            <a href="{% url 'logout' %}">Выйти</a>
+        </div>
+    </header>
+
+    <h1>Каталог товаров</h1>
+
+    <!-- Вывод товаров -->
+    {% for prod in products %}
+    <div class="product-card {% if prod.discount_percent > 15 %}high-discount{% endif %}">
+        <!-- Фото товара -->
+        <div class="product-image">
+            {% if prod.photo %}
+                <img src="{% static 'images/' %}{{ prod.photo }}" alt="{{ prod.product_name }}">
+            {% else %}
+                <div class="no-image">
+                    <img src="{% static 'images/picture.png' %}" width="150" height="150">
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Информация о товаре -->
+        <div class="product-info">
+            <div><b>Категория:</b> {{ prod.category.category_name }}</div>
+            <div><b>Наименование:</b> {{ prod.product_name }}</div>
+            <div><b>Производитель:</b> {{ prod.producer.producer_name }}</div>
+            <div><b>Поставщик:</b> {{ prod.provider.provider_name }}</div>
+            <div><b>Ед. измерения:</b> {{ prod.unit.unit_name }}</div>
+
+            <div>
+                <b>Цена:</b>
+                {% if prod.discount_percent > 0 %}
+                    <span class="price-old">{{ prod.price|floatformat:2 }} руб.</span>
+                    <span class="price-new">{{ prod.discounted_price|floatformat:2 }} руб.</span>
+                {% else %}
+                    <span class="price-new">{{ prod.price|floatformat:2 }} руб.</span>
+                {% endif %}
+            </div>
+
+            <div>
+                <b>На складе:</b>
+                {% if prod.stock_quantity == 0 %}
+                    <span class="out-of-stock">Нет в наличии</span>
+                {% elif prod.stock_quantity < 5 %}
+                    <span style="color: #ff9800;">{{ prod.stock_quantity }} шт. (осталось мало)</span>
+                {% else %}
+                    <span>{{ prod.stock_quantity }} шт.</span>
+                {% endif %}
+            </div>
+
+            <!-- Описание товара -->
+            {% if prod.description %}
+            <div style="margin-top: 10px; font-style: italic; color: #666;">
+                {{ prod.description }}
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Бейдж со скидкой -->
+        {% if prod.discount_percent > 0 %}
+        <div class="discount-badge">
+            -{{ prod.discount_percent }}%
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="empty-catalog">
+        <h3>В каталоге нет товаров</h3>
+    </div>
+    {% endfor %}
 </body>
-</html>
 </html>

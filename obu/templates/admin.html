@@ -1,14 +1,106 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Админ</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <meta charset="UTF-8">
+    <title>Администратор - Obuv</title>
+    <link rel="stylesheet" href="{% static 'sty.css' %}">
+    <link rel="icon" href="{% static 'images/icon.png' %}" type="image/png">
+
 </head>
 <body>
-    <h1>Страница АДМИНА</h1>
-    <p>Добро пожаловать, {{ request.session.user_full_name }}!</p>
-    <p>Ваша роль: {{ request.session.user_role }}</p>
-    <a href="{% url 'logout' %}">Выйти</a>
+    <header>
+        <div class="header-left">
+            <img src="{% static 'images/icon.png' %}" alt="Логотип" class="header-logo">
+            <h1>Магазин обуви</h1>
+        </div>
+        <div class="header-right">
+            <span>{{ request.session.user_full_name }} (Администратор)</span>
+            <a href="{% url 'logout' %}">Выйти</a>
+        </div>
+    </header>
+    <!-- Вывод товаров -->
+    {% for prod in products %}
+    <div class="product-card {% if prod.discount_percent > 15 %}high-discount{% endif %}">
+        <!-- Фото товара -->
+        <div class="product-image">
+            {% if prod.photo %}
+                <img src="{% static 'images/' %}{{ prod.photo }}" alt="{{ prod.product_name }}">
+            {% else %}
+                <div class="no-image">
+                    <img src="{% static 'images/picture.png' %}" width="100" height="100">
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Информация о товаре -->
+        <div class="product-info">
+            <div>
+                <span>Артикул:</span>
+                <span>{{ prod.article }}</span>
+            </div>
+            <div>
+                <span class="info-label">Категория:</span>
+                <span>{{ prod.category.category_name }}</span>
+            </div>
+
+            <div>
+                <span class="info-label">Наименование:</span>
+                <span>{{ prod.product_name }}</span>
+            </div>
+            <div>
+                <span class="info-label">Производитель:</span>
+                <span>{{ prod.producer.producer_name }}</span>
+            </div>
+
+            <div>
+                <span class="info-label">Поставщик:</span>
+                <span>{{ prod.provider.provider_name }}</span>
+            </div>
+            <div>
+                <span class="info-label">Ед. измерения:</span>
+                <span>{{ prod.unit.unit_name }}</span>
+            </div>
+
+            <div>
+                <span class="info-label">Цена:</span>
+                {% if prod.discount_percent > 0 %}
+                    <span class="price-old">{{ prod.price|floatformat:2 }} ₽</span>
+                    <span class="price-new">{{ prod.discounted_price|floatformat:2 }} ₽</span>
+                {% else %}
+                    <span class="price-new">{{ prod.price|floatformat:2 }} ₽</span>
+                {% endif %}
+            </div>
+
+            <div>
+                <span class="info-label">На складе:</span>
+                {% if prod.stock_quantity == 0 %}
+                    <span class="stock-indicator stock-out">Нет в наличии</span>
+                {% elif prod.stock_quantity < 5 %}
+                    <span class="stock-indicator stock-low">{{ prod.stock_quantity }} шт. (мало)</span>
+                {% else %}
+                    <span class="stock-indicator stock-in">{{ prod.stock_quantity }} шт.</span>
+                {% endif %}
+            </div>
+
+            <!-- Описание товара -->
+            {% if prod.description %}
+            <div style="grid-column: span 2; margin-top: 10px; font-style: italic; color: #666;">
+                {{ prod.description }}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if prod.discount_percent > 0 %}
+        <div class="discount-badge">
+            -{{ prod.discount_percent }}%
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="empty-catalog">
+        <h3>В каталоге нет товаров</h3>
+    </div>
+    {% endfor %}
 </body>
 </html>
