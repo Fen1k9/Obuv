@@ -19,6 +19,45 @@
             <a href="{% url 'logout' %}">Выйти</a>
         </div>
     </header>
+
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <input type="text"
+                   name="q"
+                   class="search-input"
+                   placeholder="🔍Поиск"
+                   value="{{ query }}">
+            <button type="submit" class="search-button">Найти</button>
+            {% if query %}
+                <a href="{% url 'admin_page' %}" class="clear-button">Сбросить</a>
+            {% endif %}
+        </form>
+
+        {% if query %}
+        <div class="search-results">
+            Найдено товаров: {{ products|length }} по запросу "{{ query }}"
+        </div>
+        {% endif %}
+    </div>
+
+      <div class="sort-section">
+        <span class="sort-title">Сортировать по количеству на складе:</span>
+        <div class="sort-links">
+            <a href="?{% if query %}q={{ query }}&{% endif %}sort=stock_asc"
+               class="sort-link {% if sort_by == 'stock_asc' %}active{% endif %}">
+                <p>📈 По возрастанию <span class="arrow">↑</span></p>
+            </a>
+            <a href="?{% if query %}q={{ query }}&{% endif %}sort=stock_desc"
+               class="sort-link {% if sort_by == 'stock_desc' %}active{% endif %}">
+                <p>📉 По убыванию <span class="arrow">↓</span></p>
+            </a>
+            <a href="?{% if query %}q={{ query }}{% else %}{% url 'admin_page' %}{% endif %}"
+               class="sort-link {% if sort_by == 'default' %}active{% endif %}">
+                По умолчанию
+            </a>
+        </div>
+    </div>
+
     <!-- Вывод товаров -->
     {% for prod in products %}
     <div class="product-card {% if prod.discount_percent > 15 %}high-discount{% endif %}">
@@ -34,52 +73,32 @@
         </div>
 
         <!-- Информация о товаре -->
-        <div class="product-info">
-            <div>
-                <span>Артикул:</span>
-                <span>{{ prod.article }}</span>
-            </div>
-            <div>
-                <span class="info-label">Категория:</span>
-                <span>{{ prod.category.category_name }}</span>
-            </div>
+  <div class="product-info">
+            <div><b>Категория:</b> {{ prod.category.category_name }}</div>
+            <div><b>Артикул:</b> {{ prod.article}}</div>
+            <div><b>Наименование:</b> {{ prod.product_name }}</div>
+            <div><b>Производитель:</b> {{ prod.producer.producer_name }}</div>
+            <div><b>Поставщик:</b> {{ prod.provider.provider_name }}</div>
+            <div><b>Ед. измерения:</b> {{ prod.unit.unit_name }}</div>
 
             <div>
-                <span class="info-label">Наименование:</span>
-                <span>{{ prod.product_name }}</span>
-            </div>
-            <div>
-                <span class="info-label">Производитель:</span>
-                <span>{{ prod.producer.producer_name }}</span>
-            </div>
-
-            <div>
-                <span class="info-label">Поставщик:</span>
-                <span>{{ prod.provider.provider_name }}</span>
-            </div>
-            <div>
-                <span class="info-label">Ед. измерения:</span>
-                <span>{{ prod.unit.unit_name }}</span>
-            </div>
-
-            <div>
-                <span class="info-label">Цена:</span>
+                <b>Цена:</b>
                 {% if prod.discount_percent > 0 %}
-                    <span class="price-old">{{ prod.price|floatformat:2 }} ₽</span>
-                    <span class="price-new">{{ prod.discounted_price|floatformat:2 }} ₽</span>
+                    <span class="price-old">{{ prod.price|floatformat:2 }} руб.</span>
+                    <span class="price-new">{{ prod.discounted_price|floatformat:2 }} руб.</span>
                 {% else %}
-                    <span class="price-new">{{ prod.price|floatformat:2 }} ₽</span>
+                    <span class="price-new">{{ prod.price|floatformat:2 }} руб.</span>
                 {% endif %}
             </div>
 
             <div>
-                <span class="info-label">На складе:</span>
+                <b>На складе:</b>
                 {% if prod.stock_quantity == 0 %}
-                    <span class="stock-indicator stock-out">Нет в наличии</span>
+                    <span class="out-of-stock">Нет в наличии</span>
                 {% elif prod.stock_quantity < 5 %}
-                    <span class="stock-indicator stock-low">{{ prod.stock_quantity }} шт. (мало)</span>
+                    <span style="color: #ff9800;">{{ prod.stock_quantity }} шт. (осталось мало)</span>
                 {% else %}
-                    <span class="stock-indicator stock-in">{{ prod.stock_quantity }} шт.</span>
+                    <span>{{ prod.stock_quantity }} шт.</span>
                 {% endif %}
             </div>
 
