@@ -20,16 +20,22 @@
         </div>
     </header>
 
+    <!-- Секция поиска -->
     <div class="search-section">
         <form method="get" class="search-form">
             <input type="text"
                    name="q"
                    class="search-input"
-                   placeholder="🔍Поиск"
+                   placeholder="🔍 Поиск по артикулу, названию, описанию..."
                    value="{{ query }}">
+
+            <!-- Сохраняем фильтр и сортировку -->
+            <input type="hidden" name="provider" value="{{ selected_provider }}">
+            <input type="hidden" name="sort" value="{{ sort_by }}">
+
             <button type="submit" class="search-button">Найти</button>
             {% if query %}
-                <a href="{% url 'admin_page' %}" class="clear-button">Сбросить</a>
+                <a href="?{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if selected_provider and selected_provider != 'all' %}provider={{ selected_provider }}{% endif %}" class="clear-button">Сбросить поиск</a>
             {% endif %}
         </form>
 
@@ -40,86 +46,144 @@
         {% endif %}
     </div>
 
-      <div class="sort-section">
+    <!-- Секция фильтра по поставщику -->
+    <div class="filter-section">
+        <span class="filter-title">Фильтр по поставщику:</span>
+        <form method="get" class="filter-form" id="filter-form">
+            <select name="provider" class="filter-select" onchange="document.getElementById('filter-form').submit()">
+                <option value="all" {% if selected_provider == 'all' or not selected_provider %}selected{% endif %}>
+                    🔄 Все поставщики
+                </option>
+                {% for provider in providers %}
+                    <option value="{{ provider.id }}" {% if selected_provider|stringformat:"s" == provider.id|stringformat:"s" %}selected{% endif %}>
+                        {{ provider.provider_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <!-- Сохраняем поиск и сортировку -->
+            <input type="hidden" name="q" value="{{ query }}">
+            <input type="hidden" name="sort" value="{{ sort_by }}">
+
+            {% if selected_provider and selected_provider != 'all' %}
+                <a href="?{% if query %}q={{ query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}" class="clear-filter">✕ Сбросить фильтр</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Секция сортировки -->
+    <div class="sort-section">
         <span class="sort-title">Сортировать по количеству на складе:</span>
         <div class="sort-links">
-            <a href="?{% if query %}q={{ query }}&{% endif %}sort=stock_asc"
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_provider and selected_provider != 'all' %}provider={{ selected_provider }}&{% endif %}sort=stock_asc"
                class="sort-link {% if sort_by == 'stock_asc' %}active{% endif %}">
-                <p>📈 По возрастанию <span class="arrow">↑</span></p>
+                📈 По возрастанию <span class="arrow">↑</span>
             </a>
-            <a href="?{% if query %}q={{ query }}&{% endif %}sort=stock_desc"
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_provider and selected_provider != 'all' %}provider={{ selected_provider }}&{% endif %}sort=stock_desc"
                class="sort-link {% if sort_by == 'stock_desc' %}active{% endif %}">
-                <p>📉 По убыванию <span class="arrow">↓</span></p>
+                📉 По убыванию <span class="arrow">↓</span>
             </a>
-            <a href="?{% if query %}q={{ query }}{% else %}{% url 'admin_page' %}{% endif %}"
-               class="sort-link {% if sort_by == 'default' %}active{% endif %}">
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_provider and selected_provider != 'all' %}provider={{ selected_provider }}{% endif %}"
+               class="sort-link {% if sort_by == 'default' or not sort_by %}active{% endif %}">
                 По умолчанию
             </a>
         </div>
     </div>
 
-    <!-- Вывод товаров -->
-    {% for prod in products %}
-    <div class="product-card {% if prod.discount_percent > 15 %}high-discount{% endif %}">
-        <!-- Фото товара -->
-        <div class="product-image">
-            {% if prod.photo %}
-                <img src="{% static 'images/' %}{{ prod.photo }}" alt="{{ prod.product_name }}">
-            {% else %}
-                <div class="no-image">
-                    <img src="{% static 'images/picture.png' %}" width="100" height="100">
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Информация о товаре -->
-  <div class="product-info">
-            <div><b>Категория:</b> {{ prod.category.category_name }}</div>
-            <div><b>Артикул:</b> {{ prod.article}}</div>
-            <div><b>Наименование:</b> {{ prod.product_name }}</div>
-            <div><b>Производитель:</b> {{ prod.producer.producer_name }}</div>
-            <div><b>Поставщик:</b> {{ prod.provider.provider_name }}</div>
-            <div><b>Ед. измерения:</b> {{ prod.unit.unit_name }}</div>
-
-            <div>
-                <b>Цена:</b>
-                {% if prod.discount_percent > 0 %}
-                    <span class="price-old">{{ prod.price|floatformat:2 }} руб.</span>
-                    <span class="price-new">{{ prod.discounted_price|floatformat:2 }} руб.</span>
-                {% else %}
-                    <span class="price-new">{{ prod.price|floatformat:2 }} руб.</span>
-                {% endif %}
+<!-- Вывод товаров -->
+{% for prod in products %}
+<div class="product-card {% if prod.discount_percent > 15 %}high-discount{% endif %}">
+    <!-- Фото товара -->
+    <div class="product-image">
+        {% if prod.photo %}
+            <img src="{% static 'images/' %}{{ prod.photo }}" alt="{{ prod.product_name }}">
+        {% else %}
+            <div class="no-image">
+                <img src="{% static 'images/picture.png' %}" width="100" height="100">
             </div>
-
-            <div>
-                <b>На складе:</b>
-                {% if prod.stock_quantity == 0 %}
-                    <span class="out-of-stock">Нет в наличии</span>
-                {% elif prod.stock_quantity < 5 %}
-                    <span style="color: #ff9800;">{{ prod.stock_quantity }} шт. (осталось мало)</span>
-                {% else %}
-                    <span>{{ prod.stock_quantity }} шт.</span>
-                {% endif %}
-            </div>
-
-            <!-- Описание товара -->
-            {% if prod.description %}
-            <div style="grid-column: span 2; margin-top: 10px; font-style: italic; color: #666;">
-                {{ prod.description }}
-            </div>
-            {% endif %}
-        </div>
-
-        {% if prod.discount_percent > 0 %}
-        <div class="discount-badge">
-            -{{ prod.discount_percent }}%
-        </div>
         {% endif %}
     </div>
-    {% empty %}
-    <div class="empty-catalog">
-        <h3>В каталоге нет товаров</h3>
+
+    <!-- Информация о товаре -->
+    <div class="product-info">
+        <div><b>Категория:</b> {{ prod.category.category_name }}</div>
+        <div><b>Артикул:</b> {{ prod.article}}</div>
+        <div><b>Наименование:</b> {{ prod.product_name }}</div>
+        <div><b>Производитель:</b> {{ prod.producer.producer_name }}</div>
+        <div><b>Поставщик:</b> {{ prod.provider.provider_name }}</div>
+        <div><b>Ед. измерения:</b> {{ prod.unit.unit_name }}</div>
+
+        <div>
+            <b>Цена:</b>
+            {% if prod.discount_percent > 0 %}
+                <span class="price-old">{{ prod.price|floatformat:2 }} руб.</span>
+                <span class="price-new">{{ prod.discounted_price|floatformat:2 }} руб.</span>
+            {% else %}
+                <span class="price-new">{{ prod.price|floatformat:2 }} руб.</span>
+            {% endif %}
+        </div>
+
+        <div>
+            <b>На складе:</b>
+            {% if prod.stock_quantity == 0 %}
+                <span class="out-of-stock">Нет в наличии</span>
+            {% elif prod.stock_quantity < 5 %}
+                <span style="color: #ff9800; font-weight: bold;">{{ prod.stock_quantity }} шт. (осталось мало)</span>
+            {% else %}
+                <span style="font-weight: bold;">{{ prod.stock_quantity }} шт.</span>
+            {% endif %}
+        </div>
+
+        <!-- Описание товара -->
+        {% if prod.description %}
+        <div style="grid-column: span 2; margin-top: 10px; font-style: italic; color: #666;">
+            {{ prod.description }}
+        </div>
+        {% endif %}
+
+        <!-- Кнопки действий для администратора (ВНУТРИ ЦИКЛА) -->
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <a href="{% url 'product_edit' prod.id %}" class="btn-edit" style="
+                padding: 8px 15px;
+                background-color: #ffbb33;
+                color: #000;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                display: inline-block;
+            ">✏️ Редактировать</a>
+
+            <form method="post" action="{% url 'product_delete' prod.id %}" style="display: inline;"
+                  onsubmit="return confirm('Вы уверены, что хотите удалить товар? Это действие необратимо.');">
+                {% csrf_token %}
+                <button type="submit" style="
+                    padding: 8px 15px;
+                    background-color: #ff4444;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    font-weight: bold;
+                    cursor: pointer;
+                ">🗑️ Удалить</button>
+            </form>
+        </div>
     </div>
-    {% endfor %}
+
+    {% if prod.discount_percent > 0 %}
+    <div class="discount-badge">
+        -{{ prod.discount_percent }}%
+    </div>
+    {% endif %}
+</div>
+{% empty %}
+<div class="empty-catalog">
+    <h3>Товары не найдены</h3>
+    {% if query or selected_provider %}
+    <p style="margin-top: 10px; color: #666;">
+        Попробуйте изменить параметры поиска или фильтра
+    </p>
+    {% endif %}
+</div>
+{% endfor %}
 </body>
 </html>

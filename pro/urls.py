@@ -9,5 +9,9 @@ urlpatterns = [
     path('guest/', views.guest_page, name='guest_page'),
     path('admin/', views.admin_page, name='admin_page'),
     path('manager/', views.manager_page, name='manager_page'),
+
+    path('product/add/', views.product_add, name='product_add'),
+    path('product/edit/<int:product_id>/', views.product_edit, name='product_edit'),
+    path('product/delete/<int:product_id>/', views.product_delete, name='product_delete')
 ]
 

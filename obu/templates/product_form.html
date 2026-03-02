@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if is_edit %}Редактирование{% else %}Добавление{% endif %} товара - Obuv</title>
+    <link rel="stylesheet" href="{% static 'st.css' %}">
+        <link rel="icon" href="{% static 'images/icon.png' %}" type="image/png">
+
+
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="{% static 'images/icon.png' %}" alt="Логотип" class="header-logo">
+            <h1>Магазин обуви</h1>
+        </div>
+        <div class="header-right">
+            <span>{{ request.session.user_full_name }} (Администратор)</span>
+            <a href="{% url 'logout' %}">Выйти</a>
+        </div>
+    </header>
+
+    <div class="form-container">
+        <h2 class="form-title">
+            {% if is_edit %}
+                Редактирование товара "{{ product.product_name }}"
+            {% else %}
+                Добавление нового товара
+            {% endif %}
+        </h2>
+
+        <!-- Сообщения об ошибках/успехе -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="
+            {% if is_edit %}
+                {% url 'product_edit' product.id %}
+            {% else %}
+                {% url 'product_add' %}
+            {% endif %}
+        ">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="article">Артикул *</label>
+                <input type="text" id="article" name="article" class="form-control"
+                       value="{% if is_edit %}{{ product.article }}{% endif %}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="product_name">Наименование товара *</label>
+                <input type="text" id="product_name" name="product_name" class="form-control"
+                       value="{% if is_edit %}{{ product.product_name }}{% endif %}" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="category">Категория *</label>
+                    <select id="category" name="category" class="form-control" required>
+                        <option value="">Выберите категорию</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}"
+                                {% if is_edit and product.category_id == category.id %}selected{% endif %}>
+                                {{ category.category_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="producer">Производитель *</label>
+                    <select id="producer" name="producer" class="form-control" required>
+                        <option value="">Выберите производителя</option>
+                        {% for producer in producers %}
+                            <option value="{{ producer.id }}"
+                                {% if is_edit and product.producer_id == producer.id %}selected{% endif %}>
+                                {{ producer.producer_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="provider">Поставщик *</label>
+                    <select id="provider" name="provider" class="form-control" required>
+                        <option value="">Выберите поставщика</option>
+                        {% for provider in providers %}
+                            <option value="{{ provider.id }}"
+                                {% if is_edit and product.provider_id == provider.id %}selected{% endif %}>
+                                {{ provider.provider_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="unit">Единица измерения *</label>
+                    <select id="unit" name="unit" class="form-control" required>
+                        <option value="">Выберите единицу измерения</option>
+                        {% for unit in units %}
+                            <option value="{{ unit.id }}"
+                                {% if is_edit and product.unit_id == unit.id %}selected{% endif %}>
+                                {{ unit.unit_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="price">Цена (руб.) *</label>
+                    <input type="number" id="price" name="price" class="form-control"
+                           step="0.01" min="0" value="{% if is_edit %}{{ product.price }}{% endif %}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="discount_percent">Скидка (%)</label>
+                    <input type="number" id="discount_percent" name="discount_percent" class="form-control"
+                           min="0" max="100" value="{% if is_edit %}{{ product.discount_percent }}{% else %}0{% endif %}">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="stock_quantity">Количество на складе *</label>
+                    <input type="number" id="stock_quantity" name="stock_quantity" class="form-control"
+                           min="0" value="{% if is_edit %}{{ product.stock_quantity }}{% else %}0{% endif %}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="photo">Название файла фото</label>
+                    <input type="text" id="photo" name="photo" class="form-control"
+                           value="{% if is_edit %}{{ product.photo }}{% endif %}"
+                           placeholder="например: boots.jpg">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Описание товара</label>
+                <textarea id="description" name="description" class="form-control" rows="4">{% if is_edit %}{{ product.description }}{% endif %}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if is_edit %}Сохранить изменения{% else %}Добавить товар{% endif %}
+                </button>
+                <a href="{% url 'admin_page' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
